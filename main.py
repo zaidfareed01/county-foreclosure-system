@@ -759,4 +759,22 @@ def serve_spa(full_path: str):
 
 if __name__ == "__main__":
     import uvicorn
+    import logging
+
+    # Suppress uvicorn's default info logs
+    logging.getLogger("uvicorn").setLevel(logging.WARNING)
+    logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
+
+    print("\n" + "=" * 60)
+    print("  COUNTY PRE-FORECLOSURE SYSTEM")
+    print("=" * 60)
+    print("\n  Server starting...\n")
+    print("  Open these URLs in your browser:")
+    print("  --------------------------------")
+    print("  Main App:      http://localhost:8000/")
+    print("  Database:      http://localhost:8000/database")
+    print("  Schema:        http://localhost:8000/schema")
+    print("  API:           http://localhost:8000/api")
+    print("\n" + "=" * 60 + "\n")
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
