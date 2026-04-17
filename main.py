@@ -144,7 +144,18 @@ class ReceivedFile(Base):
 
 
 # Create tables
-Base.metadata.create_all(bind=engine)
+print("📋 Creating database tables...")
+try:
+    Base.metadata.create_all(bind=engine)
+    print("✅ Tables created successfully!")
+
+    # Test database connection
+    from sqlalchemy import inspect
+    inspector = inspect(engine)
+    tables = inspector.get_table_names()
+    print(f"📊 Tables in database: {tables}")
+except Exception as e:
+    print(f"❌ Error creating tables: {e}")
 
 # ==================== PYDANTIC SCHEMAS ====================
 
@@ -359,16 +370,32 @@ def api_info():
 @app.post("/api/counties", response_model=CountyResponse)
 def create_county(county: CountyCreate, db: Session = Depends(get_db)):
     """Create a new county"""
+    print(f"\n🏛️  Creating county: {county.county_name}, {county.state}")
+
     existing = db.query(County).filter(County.county_name == county.county_name).first()
     if existing:
+        print(f"⚠️  County '{county.county_name}' already exists!")
         raise HTTPException(status_code=400, detail="County already exists")
 
-    db_county = County(**county.model_dump())
-    db.add(db_county)
-    db.commit()
-    db.refresh(db_county)
+    try:
+        db_county = County(**county.model_dump())
+        db.add(db_county)
+        print(f"💾 Committing to database...")
+        db.commit()
+        db.refresh(db_county)
+        print(f"✅ County created successfully! ID: {db_county.id}")
 
-    return county_to_response(db_county, db)
+        # Verify it was saved
+        verify = db.query(County).filter(County.id == db_county.id).first()
+        if verify:
+            print(f"✓ Verified: County {verify.id} exists in database")
+        else:
+            print(f"❌ WARNING: County not found after commit!")
+
+        return county_to_response(db_county, db)
+    except Exception as e:
+        print(f"❌ Error creating county: {e}")
+        raise
 
 
 @app.get("/api/counties", response_model=List[CountyResponse])
@@ -378,6 +405,7 @@ def list_counties(
     db: Session = Depends(get_db)
 ):
     """Get list of all counties with optional filters"""
+    print(f"\n📋 Listing counties (status={status}, state={state})")
     query = db.query(County)
 
     if status:
@@ -386,6 +414,7 @@ def list_counties(
         query = query.filter(County.state == state)
 
     counties = query.order_by(County.county_name).all()
+    print(f"📊 Found {len(counties)} counties")
     return [county_to_response(c, db) for c in counties]
 
 
