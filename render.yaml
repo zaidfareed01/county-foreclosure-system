@@ -1,0 +1,26 @@
+services:
+  # Backend API Service
+  - type: web
+    name: county-foreclosure-api
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: bash build.sh
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.6
+      - key: DATABASE_URL
+        fromDatabase:
+          name: county-foreclosure-db
+          property: connectionString
+      - key: NODE_VERSION
+        value: 18.18.0
+
+  # PostgreSQL Database
+databases:
+  - name: county-foreclosure-db
+    databaseName: county_foreclosure
+    user: county_user
+    plan: free
+    region: oregon
