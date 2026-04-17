@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Schema - County Pre-Foreclosure System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background: #48bb78;
+        }
+
+        .stats-bar {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            color: #718096;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .stat-item .value {
+            color: #667eea;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .schema-diagram {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .schema-title {
+            color: #2d3748;
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .diagram-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .main-table {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .main-table h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .main-table .row-count {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .connections {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .connection-line {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .line {
+            width: 2px;
+            height: 40px;
+            background: #a0aec0;
+        }
+
+        .relation-badge {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .child-table {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            padding: 20px 30px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 180px;
+        }
+
+        .child-table h4 {
+            color: #2d3748;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .child-table .row-count {
+            color: #718096;
+            font-size: 13px;
+        }
+
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .table-card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-card-header h3 {
+            font-size: 18px;
+        }
+
+        .table-card-header .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .table-card-body {
+            padding: 0;
+        }
+
+        .column-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            align-items: center;
+        }
+
+        .column-row:last-child {
+            border-bottom: none;
+        }
+
+        .column-name {
+            font-weight: 600;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pk-badge {
+            background: #fbbf24;
+            color: #78350f;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .fk-badge {
+            background: #60a5fa;
+            color: #1e3a8a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .column-type {
+            color: #718096;
+            font-size: 13px;
+            font-family: monospace;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #718096;
+        }
+
+        .relationships-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .relationships-section h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .relationship-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .relationship-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .rel-table {
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .rel-arrow {
+            color: #718096;
+            font-size: 24px;
+        }
+
+        .rel-via {
+            color: #718096;
+            font-size: 13px;
+        }
+
+        .rel-type {
+            background: #48bb78;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>Database Schema</h1>
+                <p>County Pre-Foreclosure System - Data Structure</p>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">County Management</a>
+                <a href="/database" class="nav-link">Database</a>
+                <a href="/schema" class="nav-link active">Schema</a>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar" id="statsBar">
+            <div class="stat-item">
+                <h3>Total Tables</h3>
+                <div class="value" id="totalTables">-</div>
+            </div>
+            <div class="stat-item">
+                <h3>Total Records</h3>
+                <div class="value" id="totalRecords">-</div>
+            </div>
+            <div class="stat-item">
+                <h3>Relationships</h3>
+                <div class="value" id="totalRelationships">-</div>
+            </div>
+        </div>
+
+        <!-- Schema Diagram -->
+        <div class="schema-diagram">
+            <h2 class="schema-title">Database Structure Overview</h2>
+            <div class="diagram-container" id="diagramContainer">
+                <div class="loading">Loading schema...</div>
+            </div>
+        </div>
+
+        <!-- Tables Detail -->
+        <div class="tables-grid" id="tablesGrid">
+            <div class="loading">Loading tables...</div>
+        </div>
+
+        <!-- Relationships Section -->
+        <div class="relationships-section">
+            <h3>Table Relationships</h3>
+            <div id="relationshipsList">
+                <div class="loading">Loading relationships...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSchema();
+        });
+
+        async function loadSchema() {
+            try {
+                const response = await fetch(`${API_URL}/schema`);
+                const data = await response.json();
+
+                renderStats(data);
+                renderDiagram(data);
+                renderTables(data);
+                renderRelationships(data);
+            } catch (error) {
+                console.error('Error loading schema:', error);
+                document.getElementById('diagramContainer').innerHTML = `
+                    <div class="loading" style="color: #f56565;">
+                        Error loading schema. Make sure the backend is running.
+                    </div>
+                `;
+            }
+        }
+
+        function renderStats(data) {
+            document.getElementById('totalTables').textContent = data.tables.length;
+            const totalRecords = data.tables.reduce((sum, t) => sum + t.row_count, 0);
+            document.getElementById('totalRecords').textContent = totalRecords;
+            document.getElementById('totalRelationships').textContent = data.relationships.length;
+        }
+
+        function renderDiagram(data) {
+            const mainTable = data.tables.find(t => t.name === 'counties');
+            const childTables = data.tables.filter(t => t.name !== 'counties');
+
+            let html = `
+                <div class="main-table">
+                    <h3>${mainTable.name.toUpperCase()}</h3>
+                    <div class="row-count">${mainTable.row_count} records</div>
+                </div>
+                <div class="connections">
+            `;
+
+            childTables.forEach(table => {
+                const rel = data.relationships.find(r => r.from === table.name);
+                html += `
+                    <div class="connection-line">
+                        <div class="line"></div>
+                        <div class="relation-badge">${rel ? rel.type : 'N:1'}</div>
+                        <div class="line"></div>
+                        <div class="child-table">
+                            <h4>${table.name}</h4>
+                            <div class="row-count">${table.row_count} records</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            document.getElementById('diagramContainer').innerHTML = html;
+        }
+
+        function renderTables(data) {
+            let html = '';
+
+            data.tables.forEach(table => {
+                html += `
+                    <div class="table-card">
+                        <div class="table-card-header">
+                            <h3>${table.name}</h3>
+                            <span class="badge">${table.row_count} rows</span>
+                        </div>
+                        <div class="table-card-body">
+                `;
+
+                table.columns.forEach(col => {
+                    let badges = '';
+                    if (col.primary_key) {
+                        badges += '<span class="pk-badge">PK</span>';
+                    }
+                    if (col.foreign_key) {
+                        badges += '<span class="fk-badge">FK</span>';
+                    }
+
+                    html += `
+                        <div class="column-row">
+                            <div class="column-name">
+                                ${col.name}
+                                ${badges}
+                            </div>
+                            <div class="column-type">${col.type}</div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('tablesGrid').innerHTML = html;
+        }
+
+        function renderRelationships(data) {
+            let html = '';
+
+            data.relationships.forEach(rel => {
+                html += `
+                    <div class="relationship-item">
+                        <div class="rel-table">${rel.from}</div>
+                        <span class="rel-arrow">→</span>
+                        <div class="rel-table">${rel.to}</div>
+                        <span class="rel-via">via ${rel.via}</span>
+                        <span class="rel-type">${rel.type}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('relationshipsList').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

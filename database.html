@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Browser - County Pre-Foreclosure System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            background: #f7fafc;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .nav-tab:hover {
+            background: #e2e8f0;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h2 {
+            font-size: 20px;
+        }
+
+        .record-count {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 600px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            background: #f7fafc;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #2d3748;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        tbody td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-active {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+
+        .badge-inactive {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .badge-sent {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .badge-pending {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .badge-failed {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #718096;
+        }
+
+        .spinner {
+            border: 3px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .refresh-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #f7fafc;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>Database Browser</h1>
+                    <p>View and explore all database tables and records</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <a href="/" style="background: #667eea; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600;">Counties</a>
+                    <a href="/database" style="background: #48bb78; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600;">Database</a>
+                    <a href="/schema" style="background: #667eea; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600;">Schema</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs" id="navTabs">
+            <div class="nav-tab active" onclick="switchTab('counties')">Counties</div>
+            <div class="nav-tab" onclick="switchTab('payment_info')">Payment Info</div>
+            <div class="nav-tab" onclick="switchTab('addresses')">Addresses</div>
+            <div class="nav-tab" onclick="switchTab('email_log')">Email Log</div>
+            <div class="nav-tab" onclick="switchTab('received_files')">Received Files</div>
+        </div>
+
+        <!-- Tab Contents -->
+        <div id="tabContents">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        let currentData = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAllData();
+        });
+
+        async function loadAllData() {
+            try {
+                // Load all counties
+                const countiesRes = await fetch(`${API_URL}/counties`);
+                currentData.counties = await countiesRes.json();
+
+                // Load email logs
+                const emailRes = await fetch(`${API_URL}/email-logs`);
+                currentData.email_log = await emailRes.json();
+
+                // Load received files
+                const filesRes = await fetch(`${API_URL}/received-files`);
+                currentData.received_files = await filesRes.json();
+
+                // Load addresses for all counties
+                let allAddresses = [];
+                for (const county of currentData.counties) {
+                    const addrRes = await fetch(`${API_URL}/counties/${county.id}/addresses`);
+                    const addresses = await addrRes.json();
+                    allAddresses = allAddresses.concat(addresses);
+                }
+                currentData.addresses = allAddresses;
+
+                // Load payment info
+                let allPayments = [];
+                for (const county of currentData.counties) {
+                    try {
+                        const payRes = await fetch(`${API_URL}/counties/${county.id}/payment`);
+                        if (payRes.ok) {
+                            const payment = await payRes.json();
+                            allPayments.push(payment);
+                        }
+                    } catch (e) {
+                        // Payment might not exist for this county
+                    }
+                }
+                currentData.payment_info = allPayments;
+
+                // Render all tabs
+                renderAllTabs();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('tabContents').innerHTML = `
+                    <div class="error-message">
+                        <strong>Error:</strong> Could not load database. Make sure the backend is running at ${API_URL}
+                    </div>
+                `;
+            }
+        }
+
+        function renderAllTabs() {
+            const tablesConfig = {
+                counties: {
+                    title: 'Counties',
+                    columns: ['id', 'county_name', 'state', 'contact_person', 'email', 'phone', 'status', 'last_request_sent', 'created_at'],
+                    render: renderCounties
+                },
+                payment_info: {
+                    title: 'Payment Information',
+                    columns: ['id', 'county_id', 'payment_method', 'amount', 'payment_instructions'],
+                    render: renderPaymentInfo
+                },
+                addresses: {
+                    title: 'Addresses',
+                    columns: ['id', 'county_id', 'address', 'source_type', 'is_sent', 'created_at'],
+                    render: renderAddresses
+                },
+                email_log: {
+                    title: 'Email Log',
+                    columns: ['id', 'county_id', 'email_type', 'recipient', 'subject', 'status', 'sent_at'],
+                    render: renderEmailLog
+                },
+                received_files: {
+                    title: 'Received Files',
+                    columns: ['id', 'county_id', 'filename', 'file_type', 'processing_status', 'addresses_extracted', 'received_at'],
+                    render: renderReceivedFiles
+                }
+            };
+
+            let html = '';
+            for (const [tableName, config] of Object.entries(tablesConfig)) {
+                html += `
+                    <div class="tab-content ${tableName === 'counties' ? 'active' : ''}" id="tab-${tableName}">
+                        ${config.render(currentData[tableName] || [])}
+                    </div>
+                `;
+            }
+
+            document.getElementById('tabContents').innerHTML = html;
+        }
+
+        function renderCounties(data) {
+            if (!data || data.length === 0) {
+                return renderEmptyState('No counties found', 'Add your first county to get started!');
+            }
+
+            let rows = '';
+            data.forEach(row => {
+                const statusBadge = row.status === 'active'
+                    ? '<span class="badge badge-active">Active</span>'
+                    : '<span class="badge badge-inactive">Inactive</span>';
+
+                rows += `
+                    <tr>
+                        <td>${row.id}</td>
+                        <td><strong>${row.county_name}</strong></td>
+                        <td>${row.state}</td>
+                        <td>${row.contact_person || '-'}</td>
+                        <td>${row.email || '-'}</td>
+                        <td>${row.phone || '-'}</td>
+                        <td>${statusBadge}</td>
+                        <td>${formatDate(row.last_request_sent)}</td>
+                        <td>${formatDate(row.created_at)}</td>
+                    </tr>
+                `;
+            });
+
+            return renderTable('Counties', data.length, ['ID', 'County Name', 'State', 'Contact', 'Email', 'Phone', 'Status', 'Last Request', 'Created'], rows);
+        }
+
+        function renderPaymentInfo(data) {
+            if (!data || data.length === 0) {
+                return renderEmptyState('No payment information', 'Payment details will appear here');
+            }
+
+            let rows = '';
+            data.forEach(row => {
+                rows += `
+                    <tr>
+                        <td>${row.id}</td>
+                        <td>${row.county_id}</td>
+                        <td>${row.payment_method || '-'}</td>
+                        <td>$${row.amount || '0.00'}</td>
+                        <td>${row.payment_instructions || '-'}</td>
+                    </tr>
+                `;
+            });
+
+            return renderTable('Payment Information', data.length, ['ID', 'County ID', 'Method', 'Amount', 'Instructions'], rows);
+        }
+
+        function renderAddresses(data) {
+            if (!data || data.length === 0) {
+                return renderEmptyState('No addresses', 'Extracted addresses will appear here');
+            }
+
+            let rows = '';
+            data.forEach(row => {
+                const sentBadge = row.is_sent
+                    ? '<span class="badge badge-active">Sent</span>'
+                    : '<span class="badge badge-pending">Not Sent</span>';
+
+                rows += `
+                    <tr>
+                        <td>${row.id}</td>
+                        <td>${row.county_id}</td>
+                        <td>${row.address}</td>
+                        <td>${row.source_type}</td>
+                        <td>${sentBadge}</td>
+                        <td>${formatDate(row.created_at)}</td>
+                    </tr>
+                `;
+            });
+
+            return renderTable('Addresses', data.length, ['ID', 'County ID', 'Address', 'Source', 'Status', 'Created'], rows);
+        }
+
+        function renderEmailLog(data) {
+            if (!data || data.length === 0) {
+                return renderEmptyState('No emails logged', 'Email activity will appear here');
+            }
+
+            let rows = '';
+            data.forEach(row => {
+                let statusBadge = '';
+                if (row.status === 'sent') statusBadge = '<span class="badge badge-sent">Sent</span>';
+                else if (row.status === 'pending') statusBadge = '<span class="badge badge-pending">Pending</span>';
+                else statusBadge = '<span class="badge badge-failed">Failed</span>';
+
+                rows += `
+                    <tr>
+                        <td>${row.id}</td>
+                        <td>${row.county_id || '-'}</td>
+                        <td>${row.email_type}</td>
+                        <td>${row.recipient || '-'}</td>
+                        <td>${row.subject || '-'}</td>
+                        <td>${statusBadge}</td>
+                        <td>${formatDate(row.sent_at)}</td>
+                    </tr>
+                `;
+            });
+
+            return renderTable('Email Log', data.length, ['ID', 'County ID', 'Type', 'Recipient', 'Subject', 'Status', 'Sent At'], rows);
+        }
+
+        function renderReceivedFiles(data) {
+            if (!data || data.length === 0) {
+                return renderEmptyState('No files received', 'Received files will appear here');
+            }
+
+            let rows = '';
+            data.forEach(row => {
+                let statusBadge = '';
+                if (row.processing_status === 'completed') statusBadge = '<span class="badge badge-active">Completed</span>';
+                else if (row.processing_status === 'pending') statusBadge = '<span class="badge badge-pending">Pending</span>';
+                else if (row.processing_status === 'processing') statusBadge = '<span class="badge badge-sent">Processing</span>';
+                else statusBadge = '<span class="badge badge-failed">Failed</span>';
+
+                rows += `
+                    <tr>
+                        <td>${row.id}</td>
+                        <td>${row.county_id || '-'}</td>
+                        <td>${row.filename}</td>
+                        <td>${row.file_type}</td>
+                        <td>${statusBadge}</td>
+                        <td>${row.addresses_extracted}</td>
+                        <td>${formatDate(row.received_at)}</td>
+                    </tr>
+                `;
+            });
+
+            return renderTable('Received Files', data.length, ['ID', 'County ID', 'Filename', 'Type', 'Status', 'Addresses', 'Received'], rows);
+        }
+
+        function renderTable(title, count, headers, rows) {
+            let headerHtml = headers.map(h => `<th>${h}</th>`).join('');
+
+            return `
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>${title}</h2>
+                        <div>
+                            <span class="record-count">${count} records</span>
+                            <button class="refresh-btn" onclick="loadAllData()">Refresh</button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>${headerHtml}</tr>
+                            </thead>
+                            <tbody>
+                                ${rows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderEmptyState(title, subtitle) {
+            return `
+                <div class="table-container">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>${title}</h3>
+                        <p>${subtitle}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'Never';
+            const date = new Date(dateStr);
+            return date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function switchTab(tableName) {
+            // Update tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`tab-${tableName}`).classList.add('active');
+        }
+    </script>
+</body>
+</html>

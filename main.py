@@ -705,6 +705,30 @@ def get_database_schema(db: Session = Depends(get_db)):
     return schema_info
 
 
+# ==================== SERVE HTML PAGES ====================
+
+# Directory for standalone HTML pages (database.html, schema.html, etc.)
+HTML_DIR = os.path.join(os.path.dirname(__file__))
+
+
+@app.get("/database")
+def serve_database_page():
+    """Serve the database browser page"""
+    db_html = os.path.join(HTML_DIR, "database.html")
+    if os.path.exists(db_html):
+        return FileResponse(db_html)
+    raise HTTPException(status_code=404, detail="Database page not found")
+
+
+@app.get("/schema")
+def serve_schema_page():
+    """Serve the database schema viewer page"""
+    schema_html = os.path.join(HTML_DIR, "schema.html")
+    if os.path.exists(schema_html):
+        return FileResponse(schema_html)
+    raise HTTPException(status_code=404, detail="Schema page not found")
+
+
 # ==================== SERVE REACT APP ====================
 
 @app.get("/")
