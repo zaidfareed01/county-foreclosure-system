@@ -41,3 +41,8 @@ Thumbs.db
 
 # Temporary files
 nul
+
+# Documentation (not for GitHub)
+CLIENT_DELIVERY_GUIDE.md
+DELIVERY_SUMMARY.md
+QUICK_START.md
