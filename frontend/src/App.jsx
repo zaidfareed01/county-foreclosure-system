@@ -164,11 +164,16 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('🚀 Form submitted!', formData);
+
     try {
       const url = editingCounty
         ? `${API_URL}/counties/${editingCounty.id}`
         : `${API_URL}/counties`;
       const method = editingCounty ? 'PUT' : 'POST';
+
+      console.log(`📡 Sending ${method} request to:`, url);
+      console.log('📦 Request body:', formData);
 
       const response = await fetch(url, {
         method,
@@ -176,16 +181,21 @@ function App() {
         body: JSON.stringify(formData)
       });
 
+      console.log('📨 Response status:', response.status, response.statusText);
+
       if (response.ok) {
+        console.log('✅ County saved successfully!');
         setModalOpen(false);
         loadCounties();
         loadStats();
       } else {
         const error = await response.json();
+        console.error('❌ Server error:', error);
         alert('Error: ' + (error.detail || 'Failed to save'));
       }
     } catch (error) {
-      alert('Error saving county');
+      console.error('❌ Request failed:', error);
+      alert('Error saving county: ' + error.message);
     }
   };
 
