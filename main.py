@@ -22,11 +22,18 @@ load_dotenv()
 # Database configuration - Works with both SQLite (local) and PostgreSQL (production)
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./pre_foreclosure.db")
 
+# Debug: Print which database is being used
+print("=" * 60)
+print(f"DATABASE_URL: {DATABASE_URL[:30]}..." if len(DATABASE_URL) > 30 else f"DATABASE_URL: {DATABASE_URL}")
+print("=" * 60)
+
 # Configure engine based on database type
 if DATABASE_URL.startswith("sqlite"):
+    print("⚠️  Using SQLite (development mode)")
     # SQLite requires check_same_thread=False for FastAPI
     engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
 else:
+    print("✅ Using PostgreSQL (production mode)")
     # PostgreSQL (production on Render.com)
     engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
