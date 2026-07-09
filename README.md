@@ -14,6 +14,7 @@ A web application for managing county contacts and automating pre-foreclosure da
 
 - Python 3.8+
 - Node.js 18+ (only needed for development)
+- SMTP email account (Gmail, Outlook, etc.)
 
 ### Installation
 
@@ -22,12 +23,28 @@ A web application for managing county contacts and automating pre-foreclosure da
 pip install -r requirements.txt
 ```
 
-2. **Run the application:**
+2. **Configure Email (Important!)**
+
+Edit `.env` file and add your SMTP credentials:
+```bash
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+SENDER_EMAIL=your-email@gmail.com
+```
+
+**For Gmail**: You must use an App Password (requires 2FA enabled)
+- Guide: https://support.google.com/accounts/answer/185833
+
+**See EMAIL_SETUP.md for detailed configuration instructions**
+
+3. **Run the application:**
 ```bash
 python main.py
 ```
 
-3. **Open in browser:**
+4. **Open in browser:**
 ```
 http://localhost:8000
 ```
@@ -36,6 +53,7 @@ That's it! The application will:
 - Create the SQLite database automatically
 - Serve the React frontend
 - Start the API server
+- Start the email scheduler (Monday & Thursday at 9 AM)
 
 ## Features
 
@@ -44,7 +62,13 @@ That's it! The application will:
 - Add, edit, delete counties
 - View county list with contact information
 - Dashboard with statistics
-- Email schedule tracking (Monday & Thursday at 9 AM)
+- **Automated Email System**:
+  - Scheduled emails every Monday & Thursday at 9 AM
+  - Manual "Send Emails Now" button
+  - Professional email template for county clerks
+  - SMTP integration (Gmail, Outlook, SendGrid)
+  - Email logging with status tracking (sent/failed)
+- Email schedule tracking and display
 - Clean database structure with 5 tables
 
 ### Database Tables
@@ -67,6 +91,9 @@ That's it! The application will:
 | PUT | /api/counties/{id} | Update a county |
 | DELETE | /api/counties/{id} | Delete a county |
 | GET | /api/stats | Get statistics |
+| **POST** | **/api/send-emails** | **Send emails to all active counties** |
+| **GET** | **/api/email-status** | **Get email sending statistics** |
+| GET | /api/email-logs | Get all email logs |
 | GET | /api/schema | Get database schema |
 
 Full API documentation: `http://localhost:8000/docs`
@@ -120,7 +147,12 @@ Based on project requirements:
 - [x] Display list of counties
 - [x] Last email sent activity visible
 - [x] Next schedule of email visible
-- [ ] Email automation (not implemented)
+- [x] **Email automation (COMPLETED)**
+  - [x] SMTP configuration via environment variables
+  - [x] Professional email template
+  - [x] Automated scheduling (Monday & Thursday at 9 AM)
+  - [x] Manual trigger button in UI
+  - [x] Email logging to database
 - [ ] File upload/parsing (not implemented)
 - [ ] Data export (not implemented)
 

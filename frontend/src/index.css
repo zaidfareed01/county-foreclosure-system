@@ -196,8 +196,12 @@ tbody tr {
   transition: all 0.2s ease;
 }
 
+tbody tr.row-alt {
+  background: rgba(255, 255, 255, 0.02);
+}
+
 tbody tr:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* Badges */
@@ -418,6 +422,136 @@ tbody tr:hover {
   .actions {
     flex-direction: column;
   }
+}
+
+/* Stat row */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: #a1a1aa;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  background: rgba(255,255,255,0.08);
+  color: #e4e4e7;
+}
+
+.tab-active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+/* Alert banner */
+.alert-banner {
+  display: flex;
+  flex-direction: column;
+  background: rgba(252, 140, 74, 0.12);
+  border: 1px solid rgba(252, 140, 74, 0.3);
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #fca96a;
+}
+
+/* State badge */
+.state-badge {
+  display: inline-block;
+  background: rgba(102,126,234,0.15);
+  color: #667eea;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Badge pending */
+.badge-pending {
+  background: rgba(250, 204, 21, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(250, 204, 21, 0.3);
+}
+
+/* Log summary */
+.log-summary {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Filter select */
+.filter-select {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #e4e4e7;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* Received county cards */
+.received-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 30px;
+  text-align: left;
+}
+
+.received-county-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s;
+}
+
+.received-county-card:hover {
+  border-color: rgba(102,126,234,0.3);
+  background: rgba(102,126,234,0.05);
+}
+
+/* Received summary */
+.received-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.received-summary-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
 }
 
 /* Scrollbar */
