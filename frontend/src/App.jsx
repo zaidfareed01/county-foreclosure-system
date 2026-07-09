@@ -93,7 +93,7 @@ const daysSince = (d) => {
 };
 
 const OUTREACH_STATUS_META = {
-  data_received: { label: 'Data Received', color: '#68d391', bg: 'rgba(72,187,120,0.15)', border: 'rgba(72,187,120,0.3)' },
+  data_received: { label: 'Replied - No Addresses', color: '#fbbf24', bg: 'rgba(250,204,21,0.15)', border: 'rgba(250,204,21,0.3)' },
   pending: { label: 'Pending', color: '#fbbf24', bg: 'rgba(250,204,21,0.15)', border: 'rgba(250,204,21,0.3)' },
   fee_required: { label: 'Fee Required', color: '#fbbf24', bg: 'rgba(250,204,21,0.15)', border: 'rgba(250,204,21,0.3)' },
   refused: { label: 'Refused', color: '#fc8181', bg: 'rgba(245,101,101,0.15)', border: 'rgba(245,101,101,0.3)' },
@@ -278,9 +278,9 @@ export default function App() {
           <div className="subtitle">across all states</div>
         </div>
         <div className="stat-card">
-          <div className="stat-row"><h3>Data Received</h3><Users /></div>
-          <div className="number" style={{ color: dataReceivedCount > 0 ? '#68d391' : '#a1a1aa' }}>{dataReceivedCount}</div>
-          <div className="subtitle">of {counties.length} counties contacted</div>
+          <div className="stat-row"><h3>Replied, No Addresses</h3><Users /></div>
+          <div className="number" style={{ color: dataReceivedCount > 0 ? '#fbbf24' : '#a1a1aa' }}>{dataReceivedCount}</div>
+          <div className="subtitle">of {counties.length} counties - no usable data yet</div>
         </div>
         <div className="stat-card">
           <div className="stat-row"><h3>Emails Sent</h3><Mail /></div>
