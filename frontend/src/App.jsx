@@ -128,13 +128,10 @@ export default function App() {
   const [emailLogs, setEmailLogs] = useState([]);
   const [receivedFiles, setReceivedFiles] = useState([]);
   const [receivedEmails, setReceivedEmails] = useState([]);
-  const [addresses, setAddresses] = useState([]);
-  const [addressFilter, setAddressFilter] = useState('');
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [logsLoading, setLogsLoading] = useState(false);
   const [receivedLoading, setReceivedLoading] = useState(false);
-  const [addressesLoading, setAddressesLoading] = useState(false);
   const [polling, setPolling] = useState(false);
   const [emailSending, setEmailSending] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -149,7 +146,6 @@ export default function App() {
   useEffect(() => { loadCounties(); loadStats(); }, []);
   useEffect(() => { if (tab === 'logs') loadEmailLogs(); }, [tab]);
   useEffect(() => { if (tab === 'received') loadReceivedData(); }, [tab]);
-  useEffect(() => { if (tab === 'addresses') loadAddresses(); }, [tab]);
 
   const loadCounties = async () => {
     try {
@@ -181,22 +177,6 @@ export default function App() {
       setReceivedFiles(files);
       setReceivedEmails(emails);
     } catch (e) { console.error(e); } finally { setReceivedLoading(false); }
-  };
-
-  const loadAddresses = async () => {
-    setAddressesLoading(true);
-    try {
-      const r = await fetch(`${API_URL}/addresses`);
-      setAddresses(await r.json());
-    } catch (e) { console.error(e); } finally { setAddressesLoading(false); }
-  };
-
-  const handleDeleteAddress = async (id) => {
-    if (!window.confirm('Delete this address?')) return;
-    try {
-      const r = await fetch(`${API_URL}/addresses/${id}`, { method: 'DELETE' });
-      if (r.ok) { loadAddresses(); loadStats(); }
-    } catch (e) { alert('Error deleting address'); }
   };
 
   const handlePollInbox = async () => {
@@ -375,9 +355,6 @@ export default function App() {
         </button>
         <button className={`tab ${tab === 'received' ? 'tab-active' : ''}`} onClick={() => setTab('received')}>
           <FileText /> Received Data
-        </button>
-        <button className={`tab ${tab === 'addresses' ? 'tab-active' : ''}`} onClick={() => setTab('addresses')}>
-          <Building2 /> Addresses ({stats?.total_addresses || 0})
         </button>
       </div>
 
@@ -618,79 +595,6 @@ export default function App() {
               )}
             </>
           )}
-        </div>
-      )}
-
-      {/* ── Tab: Addresses ── */}
-      {tab === 'addresses' && (
-        <div className="main-content">
-          <div className="section-header">
-            <h2>Extracted Addresses</h2>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <input
-                type="text"
-                className="filter-select"
-                placeholder="Search address, county, state..."
-                value={addressFilter}
-                onChange={e => setAddressFilter(e.target.value)}
-                style={{ minWidth: '220px' }}
-              />
-              <button className="btn btn-secondary btn-small" onClick={loadAddresses}><RefreshCw /> Refresh</button>
-            </div>
-          </div>
-          {addressesLoading ? (
-            <div className="loading"><div className="spinner"></div><p>Loading addresses...</p></div>
-          ) : (() => {
-            const q = addressFilter.trim().toLowerCase();
-            const filtered = q
-              ? addresses.filter(a =>
-                  a.address.toLowerCase().includes(q) ||
-                  a.county_name.toLowerCase().includes(q) ||
-                  a.state.toLowerCase().includes(q))
-              : addresses;
-            return filtered.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-icon">🏠</div>
-                <h3>{addresses.length === 0 ? 'No addresses extracted yet' : 'No addresses match your search'}</h3>
-                <p>{addresses.length === 0 ? 'Addresses appear here once counties reply with property data' : ''}</p>
-              </div>
-            ) : (
-              <div className="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>County</th>
-                      <th>State</th>
-                      <th>Address</th>
-                      <th>Status</th>
-                      <th>Received At</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map(a => (
-                      <tr key={a.id}>
-                        <td><strong>{a.county_name}</strong></td>
-                        <td><span className="state-badge">{a.state}</span></td>
-                        <td style={{ fontSize: '13px' }}>{a.address}</td>
-                        <td>
-                          <span className={`badge ${a.is_sent ? 'badge-active' : 'badge-pending'}`}>
-                            {a.is_sent ? <CheckCircle /> : <Clock />} {a.is_sent ? 'Sent' : 'Unsent'}
-                          </span>
-                        </td>
-                        <td style={{ fontSize: '13px' }}>{fmt(a.created_at)}</td>
-                        <td>
-                          <div className="actions">
-                            <button className="btn btn-danger btn-small" onClick={() => handleDeleteAddress(a.id)}><Trash2 /> Delete</button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            );
-          })()}
         </div>
       )}
 

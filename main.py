@@ -1131,24 +1131,6 @@ def list_addresses(county_id: int, db: Session = Depends(get_db)):
     return addresses
 
 
-@app.get("/api/addresses")
-def list_all_addresses(db: Session = Depends(get_db)):
-    """Get all addresses across all counties, most recent first"""
-    addresses = db.query(Address).order_by(Address.created_at.desc()).all()
-    result = []
-    for a in addresses:
-        county = db.query(County).filter(County.id == a.county_id).first() if a.county_id else None
-        result.append({
-            "id": a.id,
-            "address": a.address,
-            "county_name": county.county_name if county else "Unknown",
-            "state": county.state if county else "-",
-            "is_sent": a.is_sent,
-            "created_at": a.created_at,
-        })
-    return result
-
-
 @app.delete("/api/addresses/{address_id}")
 def delete_address(address_id: int, db: Session = Depends(get_db)):
     """Delete an address"""
