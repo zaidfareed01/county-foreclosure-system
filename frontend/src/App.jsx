@@ -389,7 +389,6 @@ export default function App() {
                     <th>Outreach Status</th>
                     <th>Last Emailed</th>
                     <th>Days Since</th>
-                    <th>Next Schedule</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -413,7 +412,6 @@ export default function App() {
                             </span>
                           ) : <span style={{ color: '#a1a1aa', fontSize: '13px' }}>-</span>}
                         </td>
-                        <td style={{ fontSize: '13px' }}>{fmtShort(c.next_scheduled_email)}</td>
                         <td>
                           <div className="actions">
                             <button className="btn btn-success btn-small" onClick={() => openEditModal(c.id)}><Pencil /> Edit</button>
